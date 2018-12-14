@@ -7,6 +7,7 @@ import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.awt.image.MemoryImageSource;
 import java.util.List;
+import java.util.Random;
 
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -21,9 +22,11 @@ public class Screen extends JPanel {
 
 	private Application app;
 	private Image image;
+	private Random random;
 
 	public Screen(Application app) {
 		this.app = app;
+		random = new Random();
 		setPreferredSize(app.getSize());
 		app.add(this);
 		new Worker().execute();
@@ -37,12 +40,6 @@ public class Screen extends JPanel {
 	}
 
 	private class Worker extends SwingWorker<Void, Image> {
-		
-		private final Color[] colors = { 
-			Color.BLACK, Color.RED, Color.GREEN, Color.BLUE,
-			Color.MAGENTA, Color.CYAN, Color.YELLOW, 
-			Color.ORANGE, Color.WHITE
-		};
 
 		protected void process(List<Image> chunks) {
 			for (Image bufferedImage : chunks) {
@@ -58,10 +55,14 @@ public class Screen extends JPanel {
 			long end = start + 15000;
 			long last = start;
 			while (last < end) {
-				int col = colors[frames % colors.length].getRGB();
-				for (int y = 0; y < HEIGHT; y++)
-					for (int x = 0; x < WIDTH; x++)
-						mem[x + y * WIDTH] = col;
+				for (int y = 0; y < HEIGHT; y++) {
+					for (int x = 0; x < WIDTH; x++) {
+						float r = random.nextFloat();
+						float g = random.nextFloat();
+						float b = random.nextFloat();
+						mem[x + y * WIDTH] = new Color(r, g, b).getRGB();
+					}
+				}
 				Image img = createImage(new MemoryImageSource(WIDTH, HEIGHT, mem, 0, WIDTH));
 				BufferedImage bi = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_ARGB);
 				Graphics2D g2 = bi.createGraphics();
